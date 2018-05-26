@@ -16,6 +16,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window?.makeKeyAndVisible()
+        
+        window?.rootViewController = UINavigationController(rootViewController: HomeDatasourceController())
+        
+        //MARK: change navigationBar and status bar appearance
+        UINavigationBar.appearance().barTintColor = UIColor(r: 99, g: 149, b: 224)
+        
+        application.statusBarStyle = .lightContent//have to change info.plist as well
+        let statusBarBackgroundView = UIView()
+        statusBarBackgroundView.backgroundColor = UIColor(r: 43, g: 67, b: 104)
+        window?.addSubview(statusBarBackgroundView)
+        
+        statusBarBackgroundView.anchor(window?.topAnchor, left: window?.leftAnchor, bottom: nil, right: window?.rightAnchor, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 20)
+        
+        
         return true
     }
 
