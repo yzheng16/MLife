@@ -11,12 +11,55 @@ import LBTAComponents
 
 //private var item: Item?
 
-
 class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    private let sectionCollectionViewCellId = "cellId"
+    var items: [Item]?
+    
+    override var datasourceItem: Any? {
+        didSet{
+            guard let itemCategory = datasourceItem as? ItemCategory else {return}
+            items = itemCategory.items
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        //number of v items
+        return 2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sectionCollectionViewCellId, for: indexPath) as! ItemSectionCell
+        cell.item = items?[indexPath.item]
+        return cell
+    }
+    
+    let ItemSectionsCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        //force it not change the line. as a result it only have one line.
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        //the default color is black
+        collectionView.backgroundColor = .clear
+        return collectionView
+    }()
+    
+    override func setupViews() {
+        super.setupViews()
+    }
+}
+
+class ItemSectionCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     
     var imageViewArray: [UIImage]?
     private let imageCollectionViewCellId = "cellId"
+    
+    var item: Item? {
+        didSet {
+            
+        }
+    }
     
     //this is LBTAComponents' method to get data
     override var datasourceItem: Any? {

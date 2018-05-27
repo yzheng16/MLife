@@ -18,7 +18,7 @@ class HomeDatasource: Datasource {
 //        return [kettle, bottle]
 //    }()
     
-    var items: [Item]?
+    var itemCategories: [ItemCategory]?
     
     let articles: [Article] = {
         let yiZheng = User(userId: "zsxzy@live.cn", profileImage: #imageLiteral(resourceName: "profile_image"), userName: "Yi Zheng")
@@ -38,7 +38,7 @@ class HomeDatasource: Datasource {
         if indexPath.section == 1 {
             return articles[indexPath.item]
         }else if indexPath.section == 0 {
-            if let items = items?[indexPath.item] {
+            if let items = itemCategories?[indexPath.item] {
                 return items
             }
             return 0
@@ -56,14 +56,14 @@ class HomeDatasource: Datasource {
     
     override func numberOfItems(_ section: Int) -> Int {
         //MARK: i should fix it
-        items = Item.sampleItems()
+        itemCategories = ItemCategory.sampleItemCategories()
         if section == 1 {
             return articles.count
         }else if section == 0 {
-            if let count = items?.count{
-                return count
-            }
-            return 0
+//            if let count = items?.count{
+//                return count
+//            }
+            return 2
         }
         return 0
     }
