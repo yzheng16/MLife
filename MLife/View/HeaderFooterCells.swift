@@ -8,11 +8,26 @@
 
 import LBTAComponents
 
-class ItemHeader: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
+protocol SetupHorizontalBarBySelectDelegate {
+    func contentSelectPostion(positionX: CGFloat)
+}
+
+class ItemHeader: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, SetupHorizontalBarByScrollDelegate{
+    
+//    override var datasourceItem: Any? {
+//        didSet{
+//            guard let itemHeader = datasourceItem as? SellingCell else {return}
+//            itemHeader.delegate = self
+//        }
+//    }
     
     let cellId = "cellId"
     let itemSwichBarTitle = ["NEW", "NEARBY"]
     var horizontalBarLeftAnchorConstraint: [NSLayoutConstraint]?
+    var delegate: SetupHorizontalBarBySelectDelegate?
+    
+//    let sellingCell = SellingCell()
+    
     
     let textLabel: UILabel = {
         let label = UILabel()
@@ -27,6 +42,7 @@ class ItemHeader: DatasourceCell, UICollectionViewDelegate, UICollectionViewData
         cv.backgroundColor = .clear
         return cv
     }()
+    
     
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 2
@@ -64,6 +80,8 @@ class ItemHeader: DatasourceCell, UICollectionViewDelegate, UICollectionViewData
         separatorLineView.isHidden = false
         separatorLineView.backgroundColor = UIColor(r: 230, g: 230, b: 230)
         
+//        sellingCell.delegate = self
+        
         //link to itemSwichBarCell
         collectionView.register(itemSwichBarCell.self, forCellWithReuseIdentifier: cellId)
         
@@ -90,23 +108,30 @@ class ItemHeader: DatasourceCell, UICollectionViewDelegate, UICollectionViewData
         addSubview(horizontalBarView)
         
         horizontalBarLeftAnchorConstraint = horizontalBarView.anchorWithReturnAnchors(nil, left: leftAnchor, bottom: bottomAnchor, right: nil, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: frame.width / 2, heightConstant: 4 )
-        horizontalBarView.leftAnchor.constraint(equalTo: leftAnchor).constant = 187.5
+//        horizontalBarView.leftAnchor.constraint(equalTo: leftAnchor).constant = 187.5
 //        print(frame.width)
 //        horizontalBarLeftAnchorConstraint = horizontalBarView.leftAnchor.constraint(equalTo: self.leftAnchor)
 //        horizontalBarLeftAnchorConstraint?.isActive = true
 //        horizontalBarView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
 //        horizontalBarView.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 1/4).isActive = true
 //        horizontalBarView.heightAnchor.constraint(equalToConstant: 8).isActive = true
+//        delegate?.contentSelectedPostion(positionX: <#T##CGFloat#>)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let x = CGFloat(indexPath.item) * frame.width / 2
         horizontalBarLeftAnchorConstraint?[0].constant = x
-//        horizontalBarView.anchor(nil, left: leftAnchor, bottom: bottomAnchor, right: nil, topConstant: 0, leftConstant: x, bottomConstant: 0, rightConstant: 0, widthConstant: frame.width / 2, heightConstant: 4 )
+        
         
         UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             self.layoutIfNeeded()
         }, completion: nil)
+    }
+    
+    //MARK: DOES NOT WORK
+    func contentScrollPostion(positionX: CGFloat) {
+        setupHorizontalBar()
+        horizontalBarLeftAnchorConstraint?[0].constant = positionX
     }
 }
 

@@ -39,13 +39,15 @@ class HomeDatasourceController: DatasourceController {
     override func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if indexPath.section == 1 {
             return CGSize(width: view.frame.width, height: 200)
+        }else if indexPath.section == 0 {
+            return CGSize(width: view.frame.width, height: 500)
         }
         return CGSize(width: view.frame.width, height: 250)
     }
     
     //header
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: view.frame.width, height: 75)
+        return CGSize(width: view.frame.width, height: 53)
     }
     
     //footer

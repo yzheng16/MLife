@@ -1,4 +1,4 @@
-//
+ //
 //  ItemCell.swift
 //  MLife
 //
@@ -9,18 +9,46 @@
 import LBTAComponents
 
 
-//private var item: Item?
+//sender. send scroll position - scrollView.contentOffset.x
+protocol SetupHorizontalBarByScrollDelegate {
+    func contentScrollPostion(positionX: CGFloat)
+}
 
-class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+
+ class SellingCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, SetupHorizontalBarBySelectDelegate {
+    func contentSelectPostion(positionX: CGFloat) {
+        
+    }
     
-    private let sectionCollectionViewCellId = "cellId"
-    var items: [Item]?
+
+    
+    
+    private let SellingCellId = "cellId"
+    var category: ItemCategory?
+    var delegate: SetupHorizontalBarByScrollDelegate?
+//    var delegate: HeaderFooterCells?
     
     override var datasourceItem: Any? {
         didSet{
             guard let itemCategory = datasourceItem as? ItemCategory else {return}
-            items = itemCategory.items
+//            items = itemCategory.items
+            category = itemCategory
         }
+    }
+    
+    let hCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        //the default color is black
+        collectionView.backgroundColor = .clear
+        return collectionView
+    }()
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print(scrollView.contentOffset.x)
+        delegate?.contentScrollPostion(positionX: scrollView.contentOffset.x)
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -29,27 +57,98 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sectionCollectionViewCellId, for: indexPath) as! ItemSectionCell
-        cell.item = items?[indexPath.item]
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SellingCellId, for: indexPath) as! SellingSectionCell
+//        cell.item = items?[indexPath.item]
+        cell.category = category
+//        backgroundColor = .red
         return cell
     }
     
-    let ItemSectionsCollectionView: UICollectionView = {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: frame.width, height: frame.height)
+    }
+    
+    //MARK: get rid of the cell gap up and down
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    override func setupViews() {
+        super.setupViews()
+        
+        hCollectionView.dataSource = self
+        hCollectionView.delegate = self
+        
+        
+        
+        //link cell class and add cell into collectionView
+        hCollectionView.register(SellingSectionCell.self, forCellWithReuseIdentifier: SellingCellId)
+        hCollectionView.isPagingEnabled = true
+        addSubview(hCollectionView)
+        
+        hCollectionView.fillSuperview()
+    }
+}
+
+class SellingSectionCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    private let sectionCollectionViewCellId = "cellId"
+    var items: [Item]?
+    
+    var category: ItemCategory? {
+        didSet {
+            items = category?.items
+        }
+    }
+    
+    let vCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        //force it not change the line. as a result it only have one line.
-        layout.scrollDirection = .horizontal
+//        layout.scrollDirection = .horizontal
+        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         //the default color is black
         collectionView.backgroundColor = .clear
         return collectionView
     }()
     
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sectionCollectionViewCellId, for: indexPath) as! ItemCell
+        cell.item = items?[indexPath.item]
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: frame.width, height: 250)
+    }
+    
+    //MARK: get rid of the cell gap up and down
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
     override func setupViews() {
         super.setupViews()
+//        backgroundColor = .red
+        
+        vCollectionView.dataSource = self
+        vCollectionView.delegate = self
+        
+        //link cell class and add cell into collectionView
+        vCollectionView.register(ItemCell.self, forCellWithReuseIdentifier: sectionCollectionViewCellId)
+        vCollectionView.isScrollEnabled = false
+        
+        addSubview(vCollectionView)
+        
+        vCollectionView.fillSuperview()
+        
     }
 }
 
-class ItemSectionCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     
     var imageViewArray: [UIImage]?
@@ -57,30 +156,45 @@ class ItemSectionCell: DatasourceCell, UICollectionViewDelegate, UICollectionVie
     
     var item: Item? {
         didSet {
+//            guard let item = datasourceItem as? Item  else {return}
+            if let item = item {
+                itemNameLabel.text = item.itemName
+                priceLabel.text = "$\(item.itemPrice!)"
+                profileImageView.image = item.user?.profileImage
+                usernameLabel.text = item.user?.userName
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "MM-dd-yyyy"
+                timeLabel.text = dateFormatter.string(from: item.date!)
+                
+                locationLabel.text = item.place! + ", " + item.city!
+                numberOfLikes.text = "\(item.numberOfLikes!) Likes"
+                imageViewArray = item.itemImages
+            }
             
         }
     }
     
     //this is LBTAComponents' method to get data
-    override var datasourceItem: Any? {
-        didSet{
-            guard let item = datasourceItem as? Item  else {return}
-            itemNameLabel.text = item.itemName
-            priceLabel.text = "$\(item.itemPrice!)"
-            profileImageView.image = item.user?.profileImage
-            usernameLabel.text = item.user?.userName
-            
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MM-dd-yyyy"
-            timeLabel.text = dateFormatter.string(from: item.date!)
-            
-            locationLabel.text = item.place! + ", " + item.city!
-            numberOfLikes.text = "\(item.numberOfLikes!) Likes"
-            imageViewArray = item.itemImages
-            
-            
-        }
-    }
+//    override var datasourceItem: Any? {
+//        didSet{
+//            guard let item = datasourceItem as? Item  else {return}
+//            itemNameLabel.text = item.itemName
+//            priceLabel.text = "$\(item.itemPrice!)"
+//            profileImageView.image = item.user?.profileImage
+//            usernameLabel.text = item.user?.userName
+//
+//            let dateFormatter = DateFormatter()
+//            dateFormatter.dateFormat = "MM-dd-yyyy"
+//            timeLabel.text = dateFormatter.string(from: item.date!)
+//
+//            locationLabel.text = item.place! + ", " + item.city!
+//            numberOfLikes.text = "\(item.numberOfLikes!) Likes"
+//            imageViewArray = item.itemImages
+//
+//
+//        }
+//    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let count = imageViewArray?.count {

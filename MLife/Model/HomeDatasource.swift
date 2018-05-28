@@ -31,7 +31,7 @@ class HomeDatasource: Datasource {
     }
     
     override func cellClasses() -> [DatasourceCell.Type] {
-        return [ItemCell.self, ArticleCell.self]
+        return [SellingCell.self, ArticleCell.self]
     }
     
     override func item(_ indexPath: IndexPath) -> Any? {
@@ -63,7 +63,7 @@ class HomeDatasource: Datasource {
 //            if let count = items?.count{
 //                return count
 //            }
-            return 2
+            return 1
         }
         return 0
     }
