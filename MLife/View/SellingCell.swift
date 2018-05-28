@@ -8,25 +8,150 @@
 
 import LBTAComponents
 
-
-//sender. send scroll position - scrollView.contentOffset.x
-protocol SetupHorizontalBarByScrollDelegate {
-    func contentScrollPostion(positionX: CGFloat)
-}
-
-
- class SellingCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, SetupHorizontalBarBySelectDelegate {
-    func contentSelectPostion(positionX: CGFloat) {
-        
+var horizontalBarLeftAnchorConstraint: [NSLayoutConstraint]?
+var sellingCell: SellingCell?
+var itemHeader: ItemHeader?
+ 
+ class ItemHeader: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
+    
+    let cellId = "cellId"
+    let itemSwichBarTitle = ["NEW", "NEARBY"]
+    
+    
+    let textLabel: UILabel = {
+        let label = UILabel()
+        label.text = "SELLING ITEMS"
+        label.font = UIFont.systemFont(ofSize: 16)
+        return label
+    }()
+    
+    let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.backgroundColor = .clear
+        return cv
+    }()
+    
+    
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 2
     }
     
-
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! itemSwichBarCell
+        cell.textLabel.text = itemSwichBarTitle[indexPath.item]
+        cell.textLabel.textColor = UIColor(r: 187, g: 187, b: 187)
+        
+        //set the default selected item
+        let selectedItemSwichBarByDefault = NSIndexPath(item: 0, section: 0)
+        collectionView.selectItem(at: selectedItemSwichBarByDefault as IndexPath, animated: false, scrollPosition: .top)
+        
+        return cell
+    }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: frame.width / 2, height: 25)
+    }
+    
+    //get rid of the gap left and right
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    
+    override func setupViews() {
+        super.setupViews()
+        
+        backgroundColor = .white
+        
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        
+        itemHeader = self
+        
+        separatorLineView.isHidden = false
+        separatorLineView.backgroundColor = UIColor(r: 230, g: 230, b: 230)
+
+        
+        //link to itemSwichBarCell
+        collectionView.register(itemSwichBarCell.self, forCellWithReuseIdentifier: cellId)
+        
+        addSubview(textLabel)
+        addSubview(collectionView)
+        
+        textLabel.anchor(topAnchor, left: leftAnchor, bottom: nil, right: rightAnchor, topConstant: 0, leftConstant: 12, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 50)
+        collectionView.anchor(textLabel.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 25)
+        
+        //MARK: make a horizontal swap bar animation
+        setupHorizontalBar()
+    }
+    
+    let horizontalBarView: UIView = {
+        let horizontalBarView = UIView()
+        horizontalBarView.backgroundColor = UIColor(r: 99, g: 149, b: 224)
+        return horizontalBarView
+    }()
+    
+    func setupHorizontalBar() {
+        
+        addSubview(horizontalBarView)
+        
+        horizontalBarLeftAnchorConstraint = horizontalBarView.anchorWithReturnAnchors(nil, left: leftAnchor, bottom: bottomAnchor, right: nil, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: frame.width / 2, heightConstant: 4 )
+
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//        let x = CGFloat(indexPath.item) * frame.width / 2
+//        horizontalBarLeftAnchorConstraint?[0].constant = x
+//        UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+//            self.layoutIfNeeded()
+//        }, completion: nil)
+        
+        sellingCell?.scrollTohorizontalBarIndex(barIndex: indexPath.item)
+
+    }
+    
+ }
+ 
+ 
+ 
+ class itemSwichBarCell: DatasourceCell {
+    
+    let textLabel: UILabel = {
+        let label = UILabel()
+        label.text = "NEW"
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 16)
+        
+        return label
+    }()
+    
+    override var isHighlighted: Bool {
+        didSet {
+            textLabel.textColor = isHighlighted ? UIColor.black : UIColor(r: 187, g: 187, b: 187)
+        }
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            textLabel.textColor = isSelected ? UIColor.black : UIColor(r: 187, g: 187, b: 187)
+        }
+    }
+    
+    override func setupViews(){
+        super.setupViews()
+        
+        addSubview(textLabel)
+        
+        textLabel.fillSuperview()
+    }
+ }
+
+ 
+ class SellingCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     private let SellingCellId = "cellId"
     var category: ItemCategory?
-    var delegate: SetupHorizontalBarByScrollDelegate?
-//    var delegate: HeaderFooterCells?
+
     
     override var datasourceItem: Any? {
         didSet{
@@ -45,10 +170,21 @@ protocol SetupHorizontalBarByScrollDelegate {
         return collectionView
     }()
     
+    func scrollTohorizontalBarIndex(barIndex: Int) {
+        let indexPath = NSIndexPath(item: barIndex, section: 0)
+        hCollectionView.scrollToItem(at: indexPath as IndexPath, at: .left, animated: true)
+    }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print(scrollView.contentOffset.x)
-        delegate?.contentScrollPostion(positionX: scrollView.contentOffset.x)
-        
+//        print(scrollView.contentOffset.x)
+        horizontalBarLeftAnchorConstraint?[0].constant = scrollView.contentOffset.x / 2
+    }
+    
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//        print(targetContentOffset.pointee.x)//0 -> 0.0, 1 -> 375
+//        print(targetContentOffset.pointee.x / frame.width)//0.0, 1.0
+        let indexPath = NSIndexPath(item: Int(targetContentOffset.pointee.x / frame.width) , section: 0)
+        itemHeader?.collectionView.selectItem(at: indexPath as IndexPath, animated:  true, scrollPosition: .left)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -79,7 +215,7 @@ protocol SetupHorizontalBarByScrollDelegate {
         hCollectionView.dataSource = self
         hCollectionView.delegate = self
         
-        
+        sellingCell = self
         
         //link cell class and add cell into collectionView
         hCollectionView.register(SellingSectionCell.self, forCellWithReuseIdentifier: SellingCellId)
