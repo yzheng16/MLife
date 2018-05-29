@@ -167,6 +167,7 @@ var itemHeader: ItemHeader?
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         //the default color is black
         collectionView.backgroundColor = .clear
+        collectionView.showsHorizontalScrollIndicator = false
         return collectionView
     }()
     
@@ -356,6 +357,7 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         //the default color is black
         collectionView.backgroundColor = .clear
+        collectionView.showsHorizontalScrollIndicator = false
         return collectionView
     }()
     

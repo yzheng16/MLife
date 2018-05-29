@@ -28,6 +28,8 @@ class HomeDatasourceController: DatasourceController {
         //gray background color
         collectionView?.backgroundColor = UIColor(r: 232, g: 236, b: 241)
         navigationController?.hidesBarsOnSwipe = true
+        
+        collectionView?.showsVerticalScrollIndicator = false
     }
     
     //remove the gap between each itemCell
