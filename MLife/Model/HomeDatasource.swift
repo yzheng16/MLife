@@ -27,17 +27,17 @@ class HomeDatasource: Datasource {
     }()
     
     override func headerClasses() -> [DatasourceCell.Type]? {
-        return [ItemHeader.self, ArticleHeader.self]
+        return [DatasourceCell.self, ItemHeader.self, ArticleHeader.self]
     }
     
     override func cellClasses() -> [DatasourceCell.Type] {
-        return [SellingCell.self, ArticleCell.self]
+        return [MenuCell.self, SellingCell.self, ArticleCell.self]
     }
     
     override func item(_ indexPath: IndexPath) -> Any? {
-        if indexPath.section == 1 {
+        if indexPath.section == 2 {
             return articles[indexPath.item]
-        }else if indexPath.section == 0 {
+        }else if indexPath.section == 1 {
             if let items = itemCategories?[indexPath.item] {
                 return items
             }
@@ -47,22 +47,24 @@ class HomeDatasource: Datasource {
     }
     
     override func footerClasses() -> [DatasourceCell.Type]? {
-        return [ItemFooter.self, ArticleFooter.self]
+        return [DatasourceCell.self, ItemFooter.self, ArticleFooter.self]
     }
     
     override func numberOfSections() -> Int {
-        return 2
+        return 3
     }
     
     override func numberOfItems(_ section: Int) -> Int {
         //MARK: i should fix it
         itemCategories = ItemCategory.sampleItemCategories()
-        if section == 1 {
+        if section == 2 {
             return articles.count
-        }else if section == 0 {
+        }else if section == 1 {
 //            if let count = items?.count{
 //                return count
 //            }
+            return 1
+        }else if section == 0 {
             return 1
         }
         return 0

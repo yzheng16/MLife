@@ -39,23 +39,45 @@ class HomeDatasourceController: DatasourceController {
 
     //main cell in a section
     override func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if indexPath.section == 1 {
+        if indexPath.section == 2 {
             return CGSize(width: view.frame.width, height: 200)
-        }else if indexPath.section == 0 {
+        }else if indexPath.section == 1 {
             return CGSize(width: view.frame.width, height: 500)
+        }else if indexPath.section == 0 {
+            return CGSize(width: view.frame.width, height: 120)
         }
         return CGSize(width: view.frame.width, height: 250)
     }
     
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if indexPath.section == 1{
+            let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! SellingCell
+            cell.homeDatasourceController = self
+            return cell
+        }
+        let cell = super.collectionView(collectionView, cellForItemAt: indexPath)
+        return cell
+    }
+    //MARK: TODO: create a new controller file
+    func showItemDetail(item:Item) {
+        let itemDetailController = UIViewController()
+        navigationController?.pushViewController(itemDetailController, animated: true)
+    }
+    
     //header
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        if section == 0 {
+            return CGSize(width: 0, height: 0)
+        }
         return CGSize(width: view.frame.width, height: 53)
     }
     
     //footer
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        if section == 1 {
+        if section == 2 {
             return CGSize(width: view.frame.width, height: 53)
+        }else if section == 0 {
+            return CGSize(width: 0, height: 0)
         }
         return CGSize(width: view.frame.width, height: 53 + 14)
     }

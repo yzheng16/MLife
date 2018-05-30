@@ -85,8 +85,10 @@ var itemHeader: ItemHeader?
         setupHorizontalBar()
     }
     
+    //蓝色小条
     let horizontalBarView: UIView = {
         let horizontalBarView = UIView()
+//        horizontalBarView.backgroundColor = .red
         horizontalBarView.backgroundColor = UIColor(r: 99, g: 149, b: 224)
         return horizontalBarView
     }()
@@ -111,8 +113,6 @@ var itemHeader: ItemHeader?
     }
     
  }
- 
- 
  
  class itemSwichBarCell: DatasourceCell {
     
@@ -161,6 +161,10 @@ var itemHeader: ItemHeader?
         }
     }
     
+    var homeDatasourceController: HomeDatasourceController?
+    
+
+    
     let hCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -171,9 +175,24 @@ var itemHeader: ItemHeader?
         return collectionView
     }()
     
+    func showItemDetailAtSectionCell(indexPath: IndexPath){
+        
+        if let item = category?.items?[indexPath.item]{
+            homeDatasourceController?.showItemDetail(item: item)
+        }
+    }
+    
     func scrollTohorizontalBarIndex(barIndex: Int) {
         let indexPath = NSIndexPath(item: barIndex, section: 0)
         hCollectionView.scrollToItem(at: indexPath as IndexPath, at: .left, animated: true)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if let item = category?.items?[indexPath.item]{
+            homeDatasourceController?.showItemDetail(item: item)
+        }
+        print("sellingCell selected")
+        
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -196,6 +215,7 @@ var itemHeader: ItemHeader?
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SellingCellId, for: indexPath) as! SellingSectionCell
 //        cell.item = items?[indexPath.item]
+        cell.hCollectionView = self
         cell.category = category
 //        backgroundColor = .red
         return cell
@@ -230,6 +250,8 @@ var itemHeader: ItemHeader?
 class SellingSectionCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     private let sectionCollectionViewCellId = "cellId"
+    var hCollectionView: SellingCell?
+//    var indexPath: IndexPath?
     var items: [Item]?
     
     var category: ItemCategory? {
@@ -248,6 +270,19 @@ class SellingSectionCell: DatasourceCell, UICollectionViewDelegate, UICollection
         return collectionView
     }()
     
+    func showItemDetailAtItemCell(indexPath: IndexPath){
+        
+        hCollectionView?.showItemDetailAtSectionCell(indexPath: indexPath)
+        
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //MARK: there is something wrong with indexPath
+        print("SellingSectionCell selected at index \(indexPath)")
+        hCollectionView?.showItemDetailAtSectionCell(indexPath: indexPath)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 2
     }
@@ -255,6 +290,8 @@ class SellingSectionCell: DatasourceCell, UICollectionViewDelegate, UICollection
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sectionCollectionViewCellId, for: indexPath) as! ItemCell
         cell.item = items?[indexPath.item]
+        cell.sellingSectionCell = self
+        cell.indexPathOfSellingSectionCell = indexPath
         return cell
     }
     
@@ -290,6 +327,8 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
     
     var imageViewArray: [UIImage]?
     private let imageCollectionViewCellId = "cellId"
+    var sellingSectionCell: SellingSectionCell?
+    var indexPathOfSellingSectionCell: IndexPath?
     
     var item: Item? {
         didSet {
@@ -307,6 +346,10 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
                 locationLabel.text = item.place! + ", " + item.city!
                 numberOfLikes.text = "\(item.numberOfLikes!) Likes"
                 imageViewArray = item.itemImages
+            }
+            
+            if let count = imageViewArray?.count {
+                imageCollectionView.anchor(self.topAnchor, left: self.leftAnchor, bottom: nil, right: nil, topConstant: 17, leftConstant: 10, bottomConstant: 0, rightConstant: 0, widthConstant: CGFloat((129 + 10) * count), heightConstant: 125)
             }
             
         }
@@ -340,6 +383,16 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
         return 0
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //MARK: there is something wrong with indexPath
+        print("ItemCell selected at index at \(indexPath)")
+        if let indexPath = indexPathOfSellingSectionCell {
+            sellingSectionCell?.showItemDetailAtItemCell(indexPath: indexPath)
+        }
+        
+        
+    }
+    
     //sent cell to imageCell
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCollectionViewCellId, for: indexPath) as! ImageCell
@@ -351,6 +404,8 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
         return CGSize(width: 129, height: frame.height)
     }
     
+    
+    
     let imageCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -358,6 +413,7 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
         //the default color is black
         collectionView.backgroundColor = .clear
         collectionView.showsHorizontalScrollIndicator = false
+        
         return collectionView
     }()
     
@@ -456,7 +512,10 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
         addSubview(locationLabel)
         addSubview(numberOfLikes)
         
-        imageCollectionView.anchor(self.topAnchor, left: self.leftAnchor, bottom: nil, right: self.rightAnchor, topConstant: 17, leftConstant: 10, bottomConstant: 0, rightConstant: 10, widthConstant: 0, heightConstant: 125)
+        
+        //MARK: there is a bug. the width should be change according to the number of picture. or app requeire at least 3 pictures for each item
+        imageCollectionView.anchor(self.topAnchor, left: self.leftAnchor, bottom: nil, right: rightAnchor, topConstant: 17, leftConstant: 10, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 125)
+        
         itemNameLabel.anchor(imageCollectionView.bottomAnchor, left: imageCollectionView.leftAnchor, bottom: nil, right: priceLabel.leftAnchor, topConstant: 10, leftConstant: 0, bottomConstant: 0, rightConstant: 10, widthConstant: 0, heightConstant: 30)
         priceLabel.anchor(itemNameLabel.topAnchor, left: nil, bottom: nil, right: self.rightAnchor, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 10, widthConstant: 100, heightConstant: 30)
         profileImageView.anchor(itemNameLabel.bottomAnchor, left: itemNameLabel.leftAnchor, bottom: nil, right: nil, topConstant: 5, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: 34, heightConstant: 34)
