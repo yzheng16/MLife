@@ -11,6 +11,8 @@ import LBTAComponents
 class MenuCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     private let menuCellId = "cellId"
+    var homeDatasourceController: HomeDatasourceController?
+    let menuItems: [[String:String]] = [["imageName": "icon", "title": "Selling"],["imageName": "icon", "title": "Article"],["imageName": "icon", "title": "Navigation"]]
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 3
@@ -18,6 +20,7 @@ class MenuCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: menuCellId, for: indexPath) as! MenuItemCell
+        cell.menuItem = menuItems[indexPath.item]
         return cell
     }
     
@@ -30,6 +33,10 @@ class MenuCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
         return CGSize(width: frame.width / 3, height: frame.height)
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        homeDatasourceController?.showMenuItemDetail(index: indexPath.item)
+    }
+    
     let hMenuItemCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -39,6 +46,7 @@ class MenuCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
     
     override func setupViews() {
         super.setupViews()
+        
         
         hMenuItemCollectionView.register(MenuItemCell.self, forCellWithReuseIdentifier: menuCellId)
         hMenuItemCollectionView.dataSource = self
@@ -54,6 +62,15 @@ class MenuCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
 }
 
 class MenuItemCell: DatasourceCell {
+    
+    var menuItem: [String:String]?{
+        didSet {
+            if let menuItem = menuItem {
+                menuIcon.image = UIImage(named: menuItem["imageName"]!)
+                menuLabel.text = menuItem["title"]!
+            }
+        }
+    }
     
     let menuIcon: UIImageView = {
         let imageView = UIImageView()

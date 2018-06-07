@@ -50,7 +50,7 @@ var itemHeader: ItemHeader?
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: frame.width / 2, height: 25)
+        return CGSize(width: frame.width / 2, height: 50)
     }
     
     //get rid of the gap left and right
@@ -78,8 +78,8 @@ var itemHeader: ItemHeader?
         addSubview(textLabel)
         addSubview(collectionView)
         
-        textLabel.anchor(topAnchor, left: leftAnchor, bottom: nil, right: rightAnchor, topConstant: 0, leftConstant: 12, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 50)
-        collectionView.anchor(textLabel.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 25)
+        textLabel.anchor(topAnchor, left: leftAnchor, bottom: nil, right: rightAnchor, topConstant: 0, leftConstant: 12, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 30)
+        collectionView.anchor(textLabel.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 50)
         
         //MARK: make a horizontal swap bar animation
         setupHorizontalBar()
@@ -142,7 +142,7 @@ var itemHeader: ItemHeader?
         
         addSubview(textLabel)
         
-        textLabel.fillSuperview()
+        textLabel.anchor(topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, topConstant: 5, leftConstant: 0, bottomConstant: 5, rightConstant: 0, widthConstant: 0, heightConstant: 0)
     }
  }
 
@@ -167,6 +167,7 @@ var itemHeader: ItemHeader?
     
     let hCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
+        //the default is horizontal, but if content is more than a line, it will go next line
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         //the default color is black
@@ -296,7 +297,7 @@ class SellingSectionCell: DatasourceCell, UICollectionViewDelegate, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: frame.width, height: 250)
+        return CGSize(width: frame.width, height: 240)
     }
     
     //MARK: get rid of the cell gap up and down
@@ -348,9 +349,9 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
                 imageViewArray = item.itemImages
             }
             
-            if let count = imageViewArray?.count {
-                imageCollectionView.anchor(self.topAnchor, left: self.leftAnchor, bottom: nil, right: nil, topConstant: 17, leftConstant: 10, bottomConstant: 0, rightConstant: 0, widthConstant: CGFloat((129 + 10) * count), heightConstant: 125)
-            }
+//            if let count = imageViewArray?.count {
+//                imageCollectionView.anchor(self.topAnchor, left: self.leftAnchor, bottom: nil, right: nil, topConstant: 10, leftConstant: 10, bottomConstant: 0, rightConstant: 0, widthConstant: CGFloat((129 + 10) * count), heightConstant: 125)
+//            }
             
         }
     }
@@ -401,7 +402,9 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 129, height: frame.height)
+//        print(imageCollectionView.frame.height)
+        return CGSize(width: 129, height: imageCollectionView.frame.height)
+        
     }
     
     
@@ -514,7 +517,7 @@ class ItemCell: DatasourceCell, UICollectionViewDelegate, UICollectionViewDataSo
         
         
         //MARK: there is a bug. the width should be change according to the number of picture. or app requeire at least 3 pictures for each item
-        imageCollectionView.anchor(self.topAnchor, left: self.leftAnchor, bottom: nil, right: rightAnchor, topConstant: 17, leftConstant: 10, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 125)
+        imageCollectionView.anchor(self.topAnchor, left: self.leftAnchor, bottom: nil, right: rightAnchor, topConstant: 10, leftConstant: 10, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 111)
         
         itemNameLabel.anchor(imageCollectionView.bottomAnchor, left: imageCollectionView.leftAnchor, bottom: nil, right: priceLabel.leftAnchor, topConstant: 10, leftConstant: 0, bottomConstant: 0, rightConstant: 10, widthConstant: 0, heightConstant: 30)
         priceLabel.anchor(itemNameLabel.topAnchor, left: nil, bottom: nil, right: self.rightAnchor, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 10, widthConstant: 100, heightConstant: 30)

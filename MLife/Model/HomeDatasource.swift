@@ -26,43 +26,49 @@ class HomeDatasource: Datasource {
         return [article1]
     }()
     
+    let images: [UIImage] = [#imageLiteral(resourceName: "banner-4"), #imageLiteral(resourceName: "banner-1"), #imageLiteral(resourceName: "banner-2"), #imageLiteral(resourceName: "banner-3"), #imageLiteral(resourceName: "banner-4"), #imageLiteral(resourceName: "banner-1")]
+    
     override func headerClasses() -> [DatasourceCell.Type]? {
-        return [DatasourceCell.self, ItemHeader.self, ArticleHeader.self]
+        return [DatasourceCell.self, DatasourceCell.self, ItemHeader.self, ArticleHeader.self]
     }
     
     override func cellClasses() -> [DatasourceCell.Type] {
-        return [MenuCell.self, SellingCell.self, ArticleCell.self]
+        return [CarouselCell.self, MenuCell.self, SellingCell.self, ArticleCell.self]
     }
     
     override func item(_ indexPath: IndexPath) -> Any? {
-        if indexPath.section == 2 {
+        if indexPath.section == 3 {
             return articles[indexPath.item]
-        }else if indexPath.section == 1 {
+        }else if indexPath.section == 2 {
             if let items = itemCategories?[indexPath.item] {
                 return items
             }
             return 0
+        }else if indexPath.section == 0 {
+            return images
         }
         return 0
     }
     
     override func footerClasses() -> [DatasourceCell.Type]? {
-        return [DatasourceCell.self, ItemFooter.self, ArticleFooter.self]
+        return [DatasourceCell.self, DatasourceCell.self, ItemFooter.self, ArticleFooter.self]
     }
     
     override func numberOfSections() -> Int {
-        return 3
+        return 4
     }
     
     override func numberOfItems(_ section: Int) -> Int {
         //MARK: i should fix it
         itemCategories = ItemCategory.sampleItemCategories()
-        if section == 2 {
+        if section == 3 {
             return articles.count
-        }else if section == 1 {
+        }else if section == 2 {
 //            if let count = items?.count{
 //                return count
 //            }
+            return 1
+        }else if section == 1 {
             return 1
         }else if section == 0 {
             return 1

@@ -39,47 +39,73 @@ class HomeDatasourceController: DatasourceController {
 
     //main cell in a section
     override func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if indexPath.section == 2 {
+        if indexPath.section == 3 {
             return CGSize(width: view.frame.width, height: 200)
+        }else if indexPath.section == 2 {
+            return CGSize(width: view.frame.width, height: 480)
         }else if indexPath.section == 1 {
-            return CGSize(width: view.frame.width, height: 500)
-        }else if indexPath.section == 0 {
             return CGSize(width: view.frame.width, height: 120)
+        }else if indexPath.section == 0 {
+            return CGSize(width: view.frame.width, height: 200)
         }
         return CGSize(width: view.frame.width, height: 250)
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.section == 1{
+        if indexPath.section == 2{
             let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! SellingCell
+            cell.homeDatasourceController = self
+            return cell
+        }else if indexPath.section == 1 {
+            let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! MenuCell
             cell.homeDatasourceController = self
             return cell
         }
         let cell = super.collectionView(collectionView, cellForItemAt: indexPath)
         return cell
     }
+    
+    //MARK: TODO: create a new controller file
+    func showMenuItemDetail(index: Int) {
+        let menuItemDetailController = UIViewController()
+        navigationController?.pushViewController(menuItemDetailController, animated: true)
+        if index == 0 {
+            navigationItem.title = "in the Selling Menu"
+        } else if index == 1 {
+            navigationItem.title = "in the Article Menu"
+        }else if index == 2 {
+            navigationItem.title = "in the Navigation Menu"
+        }else {
+            navigationItem.title = "undifind"
+        }
+        
+    }
+    
     //MARK: TODO: create a new controller file
     func showItemDetail(item:Item) {
         let itemDetailController = UIViewController()
         navigationController?.pushViewController(itemDetailController, animated: true)
+        navigationItem.title = "in the Selling Item"
     }
     
     //header
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        if section == 0 {
+        if section == 0 || section == 1 {
             return CGSize(width: 0, height: 0)
         }
-        return CGSize(width: view.frame.width, height: 53)
+        return CGSize(width: view.frame.width, height: 80)
     }
     
     //footer
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        if section == 2 {
+        if section == 3 {
             return CGSize(width: view.frame.width, height: 53)
+        }else if section == 1 {
+            return CGSize(width: 0, height: 14)
         }else if section == 0 {
             return CGSize(width: 0, height: 0)
         }
-        return CGSize(width: view.frame.width, height: 53 + 14)
+        return CGSize(width: view.frame.width, height: 60 + 14)
     }
 
 

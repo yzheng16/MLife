@@ -8,9 +8,6 @@
 
 import LBTAComponents
 
-class MenuHeader: DatasourceCell {
-    
-}
 
 class ArticleHeader: DatasourceCell {
     
