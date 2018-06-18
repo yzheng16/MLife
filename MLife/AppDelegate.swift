@@ -20,7 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
         
-        window?.rootViewController = UINavigationController(rootViewController: HomeDatasourceController())
+//        window?.rootViewController = UINavigationController(rootViewController: HomeDatasourceController())
+        window?.rootViewController = MainTabBarController()
         
         //MARK: change navigationBar and status bar appearance
         UINavigationBar.appearance().barTintColor = UIColor(r: 99, g: 149, b: 224)
