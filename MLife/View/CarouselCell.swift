@@ -14,13 +14,48 @@ class CarouselCell: DatasourceCell, UICollectionViewDataSource, UICollectionView
     let carouselImageCellId = "cellId"
     var timer: Timer?
 
-    
-    override var datasourceItem: Any? {
-        didSet {
-            guard let images = datasourceItem as? [UIImage] else {return}
-            carouselImages = images
+    var imageUrls: [String]? {
+        didSet{
+            setupCarouselImageArray()
         }
     }
+    
+    fileprivate func setupCarouselImageArray(){
+        
+        if let imageUrls = imageUrls {
+            carouselImages = Array(repeating: #imageLiteral(resourceName: "banner-default"), count: imageUrls.count)
+            for i in 0..<imageUrls.count {
+                guard let cUrl = URL(string: imageUrls[i]) else {return}
+                URLSession.shared.dataTask(with: cUrl) { (data, response, error) in
+                    if let err = error {
+                        print("failed to setup carousel image:\n",err)
+                        return
+                    }
+                    if let data = data {
+                        let image = UIImage(data: data)
+                        guard let unilImage = image else {print("i = \(i),image is nil"); return}
+                        self.carouselImages?[i] = unilImage
+                    }else {
+                        print("data is nil")
+                    }
+                    }.resume()
+            }
+        }else{
+            //set loading image
+            carouselImages = Array(repeating: #imageLiteral(resourceName: "banner-default"), count: 6)
+        }
+        
+        
+        
+        
+    }
+    
+//    override var datasourceItem: Any? {
+//        didSet {
+//            guard let images = datasourceItem as? [UIImage] else {return}
+//            carouselImages = images
+//        }
+//    }
     
     let hCollectionView: UICollectionView = {
        let layout = UICollectionViewFlowLayout()
@@ -46,12 +81,13 @@ class CarouselCell: DatasourceCell, UICollectionViewDataSource, UICollectionView
     /**
      Invokes Timer to start Automatic Animation with repeat enabled
      */
-    func startTimer() -> Timer {
-        
-        let timer = Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(scrollToNextCell), userInfo: nil, repeats: true)
-        
-        return timer
-    }
+    //MARK: uncomment later
+//    func startTimer() -> Timer {
+//
+//        let timer = Timer.scheduledTimer(timeInterval: 4.0, target: self, selector: #selector(scrollToNextCell), userInfo: nil, repeats: true)
+//
+//        return timer
+//    }
     
     /**
      Scroll to Next Cell
@@ -84,7 +120,8 @@ class CarouselCell: DatasourceCell, UICollectionViewDataSource, UICollectionView
 //            print(Int(index) - 1)
             
         }
-        timer = startTimer()
+        //MARK: uncomment later
+//        timer = startTimer()
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -114,7 +151,12 @@ class CarouselCell: DatasourceCell, UICollectionViewDataSource, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return (carouselImages?.count)!
+        //MARK: this is a bug
+//        return (carouselImages?.count)!
+        if let count = carouselImages?.count {
+            return count
+        }
+        return 6
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -135,7 +177,8 @@ class CarouselCell: DatasourceCell, UICollectionViewDataSource, UICollectionView
         
         hCollectionView.fillSuperview()
         pageControl.anchor(nil, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 0)
-        timer = startTimer()
+        //MARK: uncomment later
+//        timer = startTimer()
     }
 }
 
@@ -143,9 +186,13 @@ class CarouselImageCell: DatasourceCell {
     
     var image: UIImage? {
         didSet {
-            imageView.image = image
+            if image != nil {
+                imageView.image = image
+            }
+            
         }
     }
+    
     
     let imageView : UIImageView = {
         let imageView = UIImageView()

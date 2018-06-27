@@ -7,6 +7,7 @@
 //
 
 import LBTAComponents
+import Firebase
 
 class HomeDatasource: Datasource {
     
@@ -26,7 +27,8 @@ class HomeDatasource: Datasource {
         return [article1]
     }()
     
-    let images: [UIImage] = [#imageLiteral(resourceName: "banner-4"), #imageLiteral(resourceName: "banner-1"), #imageLiteral(resourceName: "banner-2"), #imageLiteral(resourceName: "banner-3"), #imageLiteral(resourceName: "banner-4"), #imageLiteral(resourceName: "banner-1")]
+    let carouselImages: [UIImage] = [#imageLiteral(resourceName: "banner-default"), #imageLiteral(resourceName: "banner-default"), #imageLiteral(resourceName: "banner-default"), #imageLiteral(resourceName: "banner-default"), #imageLiteral(resourceName: "banner-default"), #imageLiteral(resourceName: "banner-default")]
+    
     
     override func headerClasses() -> [DatasourceCell.Type]? {
         return [DatasourceCell.self, DatasourceCell.self, ItemHeader.self, ArticleHeader.self]
@@ -37,6 +39,7 @@ class HomeDatasource: Datasource {
     }
     
     override func item(_ indexPath: IndexPath) -> Any? {
+        
         if indexPath.section == 3 {
             return articles[indexPath.item]
         }else if indexPath.section == 2 {
@@ -44,8 +47,6 @@ class HomeDatasource: Datasource {
                 return items
             }
             return 0
-        }else if indexPath.section == 0 {
-            return images
         }
         return 0
     }
@@ -59,6 +60,7 @@ class HomeDatasource: Datasource {
     }
     
     override func numberOfItems(_ section: Int) -> Int {
+        
         //MARK: i should fix it
         itemCategories = ItemCategory.sampleItemCategories()
         if section == 3 {
@@ -75,4 +77,6 @@ class HomeDatasource: Datasource {
         }
         return 0
     }
+    
+    
 }

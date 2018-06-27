@@ -8,11 +8,22 @@
 
 import LBTAComponents
 import UIKit
+import Firebase
 
-class HomeDatasourceController: DatasourceController, UISearchBarDelegate {
+class HomeDatasourceController: DatasourceController, UISearchBarDelegate{
 
+    var carouselImagesUrl: [String]?
+    
     let locationButton: UIButton = {
-       let ub = UIButton()
+       let ub = UIButton(type: .system)
+//        ub.semanticContentAttribute = .forceRightToLeft
+//
+//        ub.setTitle("EDM", for: .normal)
+//        ub.setTitleColor(.black, for: .normal)
+//
+//        ub.setImage(#imageLiteral(resourceName: "expand-arrow-30"), for: .normal)
+//        ub.imageView?.contentMode = .scaleToFill
+
         
         let locationLabel = UILabel()
         locationLabel.text = "EDM"
@@ -36,14 +47,15 @@ class HomeDatasourceController: DatasourceController, UISearchBarDelegate {
     }
     
     
-    let searchBar: UISearchBar = {
+    lazy var searchBar: UISearchBar = {
         let sb = UISearchBar()
+        sb.delegate = self
         sb.placeholder = "Search"
         return sb
     }()
     
     let languageButton: UIButton = {
-        let ub = UIButton()
+        let ub = UIButton(type: .system)
         let languageLabel = UILabel()
         languageLabel.text = "EN"
         let icon = UIImageView()
@@ -55,6 +67,10 @@ class HomeDatasourceController: DatasourceController, UISearchBarDelegate {
         languageLabel.anchor(ub.topAnchor, left: ub.leftAnchor, bottom: ub.bottomAnchor, right: nil, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: 0, heightConstant: 0)
         icon.anchor(nil, left: languageLabel.rightAnchor, bottom: nil, right: nil, topConstant: 0, leftConstant: 0, bottomConstant: 0, rightConstant: 0, widthConstant: 15, heightConstant: 15)
         icon.anchorCenterYToSuperview()
+        
+        ub.showsTouchWhenHighlighted = true
+        ub.setTitleColor(UIColor.blue, for: .normal)
+        ub.setTitleColor(UIColor.lightGray, for: .selected)
         
         return ub
     }()
@@ -102,17 +118,23 @@ class HomeDatasourceController: DatasourceController, UISearchBarDelegate {
         navigationController?.hidesBarsOnSwipe = true
         
         collectionView?.showsVerticalScrollIndicator = false
+        
+        
+        fetchHomePageData()
     }
     
-//    // called before text changes
+    // called before text changes
 //    public func searchBar(_ searchBar: UISearchBar, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
 //        return true
 //    }
 //
 //    // called when text starts editing
-//    public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar){
-//        print("123")
-//    }
+    public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar){
+        print("123")
+        
+        tabBarController?.selectedIndex = 1
+        
+    }
     
     //remove the gap between each itemCell
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -142,9 +164,34 @@ class HomeDatasourceController: DatasourceController, UISearchBarDelegate {
             let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! MenuCell
             cell.homeDatasourceController = self
             return cell
+        }else if indexPath.section == 0 {
+            let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! CarouselCell
+            cell.imageUrls = self.carouselImagesUrl
+            return cell
         }
         let cell = super.collectionView(collectionView, cellForItemAt: indexPath)
         return cell
+    }
+    
+    func fetchHomePageData() {
+        //fetch carousel image url
+        Database.database().reference().child("homePage").child("carouselImageUrl").observeSingleEvent(of: .value, with: { (snapshot) in
+//            print(snapshot.value ?? "")
+            guard let array = snapshot.value as? [String] else {return}
+            self.carouselImagesUrl = Array(repeating: "nil", count: array.count + 2)
+            for i in 0..<array.count + 2 {
+                if i == 0 {
+                    self.carouselImagesUrl?[i] = array[array.count - 1]
+                }else if i == array.count + 1 {
+                    self.carouselImagesUrl?[i] = array[0]
+                }else {
+                    self.carouselImagesUrl?[i] = array[i - 1]
+                }
+            }
+            self.collectionView?.reloadData()
+        }) { (error) in
+            print("Fail to fetch carousel image url:\n",error)
+        }
     }
     
     //MARK: TODO: create a new controller file
