@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
 //        window?.rootViewController = UINavigationController(rootViewController: HomeDatasourceController())
         window?.rootViewController = MainTabBarController()
+//        window?.rootViewController = SignUpController()
         
         //MARK: change navigationBar and status bar appearance
         UINavigationBar.appearance().barTintColor = UIColor(r: 99, g: 149, b: 224)

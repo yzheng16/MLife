@@ -14,48 +14,7 @@ class CarouselCell: DatasourceCell, UICollectionViewDataSource, UICollectionView
     let carouselImageCellId = "cellId"
     var timer: Timer?
 
-    var imageUrls: [String]? {
-        didSet{
-            setupCarouselImageArray()
-        }
-    }
-    
-    fileprivate func setupCarouselImageArray(){
-        
-        if let imageUrls = imageUrls {
-            carouselImages = Array(repeating: #imageLiteral(resourceName: "banner-default"), count: imageUrls.count)
-            for i in 0..<imageUrls.count {
-                guard let cUrl = URL(string: imageUrls[i]) else {return}
-                URLSession.shared.dataTask(with: cUrl) { (data, response, error) in
-                    if let err = error {
-                        print("failed to setup carousel image:\n",err)
-                        return
-                    }
-                    if let data = data {
-                        let image = UIImage(data: data)
-                        guard let unilImage = image else {print("i = \(i),image is nil"); return}
-                        self.carouselImages?[i] = unilImage
-                    }else {
-                        print("data is nil")
-                    }
-                    }.resume()
-            }
-        }else{
-            //set loading image
-            carouselImages = Array(repeating: #imageLiteral(resourceName: "banner-default"), count: 6)
-        }
-        
-        
-        
-        
-    }
-    
-//    override var datasourceItem: Any? {
-//        didSet {
-//            guard let images = datasourceItem as? [UIImage] else {return}
-//            carouselImages = images
-//        }
-//    }
+    var imageUrls: [String]? 
     
     let hCollectionView: UICollectionView = {
        let layout = UICollectionViewFlowLayout()
@@ -151,8 +110,6 @@ class CarouselCell: DatasourceCell, UICollectionViewDataSource, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        //MARK: this is a bug
-//        return (carouselImages?.count)!
         if let count = carouselImages?.count {
             return count
         }
@@ -161,7 +118,10 @@ class CarouselCell: DatasourceCell, UICollectionViewDataSource, UICollectionView
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: carouselImageCellId, for: indexPath) as! CarouselImageCell
-        cell.image = carouselImages?[indexPath.item]
+        if let imageUrls = imageUrls {
+            cell.imageUrl = imageUrls[indexPath.item]
+        }
+        
         return cell
     }
     
@@ -183,19 +143,17 @@ class CarouselCell: DatasourceCell, UICollectionViewDataSource, UICollectionView
 }
 
 class CarouselImageCell: DatasourceCell {
-    
-    var image: UIImage? {
-        didSet {
-            if image != nil {
-                imageView.image = image
-            }
-            
+    var imageUrl: String? {
+        didSet{
+            guard let imageUrl = imageUrl else {return}
+            imageView.loadImage(urlString: imageUrl)
         }
     }
     
     
-    let imageView : UIImageView = {
-        let imageView = UIImageView()
+    let imageView : CustomImageView = {
+        let imageView = CustomImageView()
+        imageView.image = #imageLiteral(resourceName: "banner-default")
         return imageView
     }()
     

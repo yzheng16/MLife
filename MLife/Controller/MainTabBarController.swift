@@ -11,6 +11,12 @@ import UIKit
 class MainTabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        setupTabBarController()
+        
+    }
+    
+    func setupTabBarController(){
         tabBar.tintColor = .black
         
         let homeController = templateNavController(tabBarImage: #imageLiteral(resourceName: "home-30"), rootViewController: HomeDatasourceController())
@@ -21,7 +27,7 @@ class MainTabBarController: UITabBarController {
         
         let likedController = templateNavController(tabBarImage: #imageLiteral(resourceName: "heart-30"))
         
-        let meController = templateNavController(tabBarImage: #imageLiteral(resourceName: "customer-30"))
+        let meController = templateNavController(tabBarImage: #imageLiteral(resourceName: "customer-30"), rootViewController: UserProfileController())
         
         viewControllers = [homeController, searchController, addController, likedController, meController]
         

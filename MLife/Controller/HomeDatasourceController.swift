@@ -12,6 +12,7 @@ import Firebase
 
 class HomeDatasourceController: DatasourceController, UISearchBarDelegate{
 
+    //MARK: 这里可以直接赋值default images 直接是image 不是url images = [UIImage]()
     var carouselImagesUrl: [String]?
     
     let locationButton: UIButton = {
@@ -167,6 +168,7 @@ class HomeDatasourceController: DatasourceController, UISearchBarDelegate{
         }else if indexPath.section == 0 {
             let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! CarouselCell
             cell.imageUrls = self.carouselImagesUrl
+            //MARK: 在这里就把images 数组存好 传给cell 然后 reloadView 避免第一章图片加载不出来的问题
             return cell
         }
         let cell = super.collectionView(collectionView, cellForItemAt: indexPath)
